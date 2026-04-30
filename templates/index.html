@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewPrepBot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="chat-container">
+    <h1>InterviewPrepBot 💼</h1>
+
+    <div class="button-row">
+        <button onclick="quickSend('Ask me an HR interview question')">HR Interview</button>
+        <button onclick="quickSend('Conduct Java technical interview')">Technical</button>
+        <button onclick="quickSend('Give aptitude question')">Aptitude</button>
+        <button onclick="quickSend('Review my resume for fresher role')">Resume Help</button>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <p><b>Bot:</b> Welcome! Choose a mode above.</p>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="startListening()">🎤 Speak</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
