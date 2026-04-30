@@ -1,0 +1,8 @@
+28-04-2026 20:37:12
+User: hr qns
+Bot: Score: 3/10 | Weak answer. Use full sentence.
+----------------------------------------
+28-04-2026 20:37:40
+User: im soundarya 2nd year at kongunadu college of engineering and technology
+Bot: Score: 8/10 | Good answer. Add one example.
+----------------------------------------
