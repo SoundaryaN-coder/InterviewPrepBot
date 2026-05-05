@@ -10,6 +10,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def chat():
     user_input = request.json.get("message")
 
+    print("USER INPUT:", user_input)   # ADD THIS
+
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -20,11 +22,10 @@ def chat():
         )
 
         reply = response.choices[0].message.content
+        print("BOT REPLY:", reply)   # ADD THIS
 
     except Exception as e:
         reply = "Error: " + str(e)
+        print("ERROR:", e)
 
     return jsonify({"reply": reply})
-
-if __name__ == "__main__":
-    app.run()
