@@ -1,5 +1,6 @@
 // Store full conversation (memory)
 let chatHistory = [];
+let currentMode = "general";
 
 // Send message function
 async function sendMessage(customMessage = null) {
@@ -13,6 +14,8 @@ async function sendMessage(customMessage = null) {
 
     // Show user message
     chatBox.innerHTML += `<p><b>You:</b> ${message}</p>`;
+    chatBox.innerHTML += `<p><b>You:</b> ${message}</p>`;
+    chatBox.scrollTop = chatBox.scrollHeight;   // ✅ HERE
     input.value = "";
 
     // Add user message to history
@@ -20,15 +23,20 @@ async function sendMessage(customMessage = null) {
         role: "user",
         content: message
     });
-
+    chatBox.innerHTML += `<p id="loading"><i>Bot is typing...</i></p>`;
     try {
         const response = await fetch("/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ messages: chatHistory }) // send full history
+            body: JSON.stringify({
+            messages: chatHistory,
+            mode: currentMode
+            })
+        // send full history
         });
+        document.getElementById("loading")?.remove();
 
         const data = await response.json();
 
@@ -36,6 +44,8 @@ async function sendMessage(customMessage = null) {
 
         // Show bot reply
         chatBox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+        chatBox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+        chatBox.scrollTop = chatBox.scrollHeight;   // ✅ HERE
 
         // Add bot reply to history
         chatHistory.push({
@@ -47,9 +57,9 @@ async function sendMessage(customMessage = null) {
         chatBox.scrollTop = chatBox.scrollHeight;
 
     } catch (error) {
-        console.log("Fetch error:", error);
-        chatBox.innerHTML += `<p><b>Bot:</b> Error connecting to server</p>`;
-    }
+    document.getElementById("loading")?.remove();
+    console.log("Fetch error:", error);
+    chatBox.innerHTML += `<p><b>Bot:</b> Server error. Try again.</p>`;
 }
 
 
@@ -83,5 +93,8 @@ function startListening() {
 
 // ⚡ Quick buttons (HR / Technical / etc.)
 function quickSend(text){
-    sendMessage(text);
+    currentMode = text;
+    chatHistory = [];
+    document.getElementById("chatBox").innerHTML = "";
+    sendMessage("Start " + text + " interview");
 }
