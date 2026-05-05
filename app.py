@@ -1,49 +1,30 @@
-from flask import Flask, render_template, request, jsonify
-import random
+from flask import Flask, request, jsonify
+from openai import OpenAI
 import os
-import threading
 
 app = Flask(__name__)
 
-def speak(text):
-    try:
-        os.system(f'say "{text}"')
-    except:
-        pass
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-@app.route("/chat", methods=["POST"])
+@app.route('/chat', methods=['POST'])
 def chat():
-    data = request.get_json()
-    msg = data["message"].lower()
+    user_input = request.json.get("message")
 
-    hr_questions = [
-        "Tell me about yourself",
-        "Why should we hire you",
-        "What are your strengths",
-        "Where do you see yourself in five years"
-    ]
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an interview preparation assistant. Give clear, short answers."},
+                {"role": "user", "content": user_input}
+            ]
+        )
 
-    if "hr" in msg:
-        reply = random.choice(hr_questions)
+        reply = response.choices[0].message.content
 
-    elif "java" in msg:
-        reply = "Explain OOP concepts in Java"
-
-    elif "python" in msg:
-        reply = "What is the difference between list and tuple"
-
-    else:
-        reply = "Good answer. Keep improving your communication"
-
-    # Run voice in background (IMPORTANT)
-    threading.Thread(target=speak, args=(reply,)).start()
+    except Exception as e:
+        reply = "Error: " + str(e)
 
     return jsonify({"reply": reply})
 
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run()
