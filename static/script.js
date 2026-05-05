@@ -1,3 +1,7 @@
+// Store full conversation (memory)
+let chatHistory = [];
+
+// Send message function
 async function sendMessage(customMessage = null) {
 
     let input = document.getElementById("userInput");
@@ -7,23 +11,49 @@ async function sendMessage(customMessage = null) {
 
     let chatBox = document.getElementById("chatBox");
 
+    // Show user message
     chatBox.innerHTML += `<p><b>You:</b> ${message}</p>`;
-
     input.value = "";
 
-    const response = await fetch("/chat", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message: message })
+    // Add user message to history
+    chatHistory.push({
+        role: "user",
+        content: message
     });
 
-    const data = await response.json();
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ messages: chatHistory }) // send full history
+        });
 
-    chatBox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
-    chatBox.innerHTML += `<p><small>Practice Count: ${data.count}</small></p>`;
-} 
+        const data = await response.json();
+
+        console.log("API RESPONSE:", data); // DEBUG
+
+        // Show bot reply
+        chatBox.innerHTML += `<p><b>Bot:</b> ${data.reply}</p>`;
+
+        // Add bot reply to history
+        chatHistory.push({
+            role: "assistant",
+            content: data.reply
+        });
+
+        // Auto scroll
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+        console.log("Fetch error:", error);
+        chatBox.innerHTML += `<p><b>Bot:</b> Error connecting to server</p>`;
+    }
+}
+
+
+// 🎤 Voice input
 function startListening() {
 
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -39,7 +69,7 @@ function startListening() {
 
         document.getElementById("userInput").value = text;
 
-        sendMessage(); // auto send after speaking
+        sendMessage(); // auto send
     };
 
     recognition.onerror = function(event) {
@@ -50,6 +80,8 @@ function startListening() {
     recognition.start();
 }
 
+
+// ⚡ Quick buttons (HR / Technical / etc.)
 function quickSend(text){
     sendMessage(text);
 }
